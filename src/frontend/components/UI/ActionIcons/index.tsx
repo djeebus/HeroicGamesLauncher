@@ -1,6 +1,9 @@
 import {
+  ArrowDown01,
+  ArrowDown10,
   ArrowDownAZ,
   ArrowDownZA,
+  CalendarDays,
   HardDrive,
   LayoutGrid,
   List,
@@ -58,9 +61,20 @@ export default React.memo(function ActionIcons({
     setSortDescending,
     sortInstalled,
     setSortInstalled,
+    sortBy,
+    setSortBy,
     showAlphabetFilter,
     onToggleAlphabetFilter
   } = useContext(LibraryContext)
+
+  const sortByReleaseDate = sortBy === 'releaseDate'
+  const sortDirectionIcon = sortByReleaseDate
+    ? sortDescending
+      ? ArrowDown10
+      : ArrowDown01
+    : sortDescending
+      ? ArrowDownZA
+      : ArrowDownAZ
 
   return (
     <div className="ActionIcons" data-tour={dataTour}>
@@ -123,19 +137,33 @@ export default React.memo(function ActionIcons({
             className="FormControl__button"
             onClick={() => setSortDescending(!sortDescending)}
           >
-            {sortDescending ? (
-              <Icon
-                glyph={ArrowDownZA}
-                className="FormControl__segmentedLucideIcon"
-                data-tour="library-sort-az"
-              />
-            ) : (
-              <Icon
-                glyph={ArrowDownAZ}
-                className="FormControl__segmentedLucideIcon"
-                data-tour="library-sort-az"
-              />
-            )}
+            <Icon
+              glyph={sortDirectionIcon}
+              className="FormControl__segmentedLucideIcon"
+              data-tour="library-sort-az"
+            />
+          </button>
+        </Tooltip>
+        <Tooltip
+          content={t('library.sortByReleaseDate', 'Sort by release date')}
+          asChild
+        >
+          <button
+            aria-label={t('library.sortByReleaseDate', 'Sort by release date')}
+            aria-pressed={sortByReleaseDate}
+            className="FormControl__button"
+            onClick={() =>
+              setSortBy(sortByReleaseDate ? 'title' : 'releaseDate')
+            }
+          >
+            <Icon
+              glyph={CalendarDays}
+              className="FormControl__segmentedLucideIcon"
+              strokeWidth={sortByReleaseDate ? 2.25 : undefined}
+              fill={sortByReleaseDate ? 'currentColor' : 'none'}
+              fillOpacity={sortByReleaseDate ? 0.15 : 0}
+              data-tour="library-sort-release-date"
+            />
           </button>
         </Tooltip>
         <Tooltip content={t('library.sortByStatus', 'Sort by status')} asChild>

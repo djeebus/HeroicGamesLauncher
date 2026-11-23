@@ -295,7 +295,18 @@ export default class LegendaryGame implements Game {
    *
    */
   async getExtraInfo(): Promise<ExtraInfo> {
-    const { namespace, title } = this.getGameInfo()
+    const gameInfo = this.getGameInfo()
+    const extraInfo = await this.fetchExtraInfo(gameInfo)
+    // Prefer the release date from the library, so the game page matches the
+    // date used for sorting (and is shown even when the store API lacks it)
+    const releaseDate = gameInfo.extra?.releaseDate ?? extraInfo.releaseDate
+    return releaseDate ? { ...extraInfo, releaseDate } : extraInfo
+  }
+
+  private async fetchExtraInfo({
+    namespace,
+    title
+  }: GameInfo): Promise<ExtraInfo> {
     if (namespace === undefined) return this.emptyExtraInfo
 
     const cachedExtraInfo = gameInfoStore.get(namespace)

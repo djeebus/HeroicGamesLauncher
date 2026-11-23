@@ -33,7 +33,13 @@ import {
 } from 'frontend/helpers/library'
 import RecentlyPlayed from './components/RecentlyPlayed'
 import LibraryContext from './LibraryContext'
-import { Category, PlatformsFilters, StoresFilters } from 'frontend/types'
+import {
+  Category,
+  LibrarySortBy,
+  PlatformsFilters,
+  StoresFilters
+} from 'frontend/types'
+import { releaseTimestamp } from 'common/releaseDate'
 import { hasHelp } from 'frontend/hooks/hasHelp'
 import EmptyLibraryMessage from './components/EmptyLibrary'
 import CategoriesManager from './components/CategoriesManager'
@@ -230,6 +236,14 @@ export default React.memo(function Library(): JSX.Element {
   function handleSortDescending(value: boolean) {
     storage.setItem('sortDescending', JSON.stringify(value))
     setSortDescending(value)
+  }
+
+  const [sortBy, setSortBy] = useState<LibrarySortBy>(() =>
+    storage?.getItem('sortBy') === 'releaseDate' ? 'releaseDate' : 'title'
+  )
+  function handleSortBy(value: LibrarySortBy) {
+    storage.setItem('sortBy', value)
+    setSortBy(value)
   }
 
   const [sortInstalled, setSortInstalled] = useState(
@@ -658,12 +672,25 @@ export default React.memo(function Library(): JSX.Element {
     }
 
     // sort
-    library = library.sort((a, b) => {
+    const direction = sortDescending ? -1 : 1
+    const compareTitles = (a: GameInfo, b: GameInfo) => {
       const gameA = a.title.toUpperCase().replace('THE ', '')
       const gameB = b.title.toUpperCase().replace('THE ', '')
-      return sortDescending
-        ? -gameA.localeCompare(gameB)
-        : gameA.localeCompare(gameB)
+      return gameA.localeCompare(gameB)
+    }
+    library = library.sort((a, b) => {
+      if (sortBy === 'releaseDate') {
+        const dateA = releaseTimestamp(a.extra?.releaseDate)
+        const dateB = releaseTimestamp(b.extra?.releaseDate)
+        // games without a release date always go last
+        if (dateA === undefined || dateB === undefined) {
+          if (dateA !== dateB) return dateA === undefined ? 1 : -1
+        } else if (dateA !== dateB) {
+          return direction * (dateA - dateB)
+        }
+        return compareTitles(a, b)
+      }
+      return direction * compareTitles(a, b)
     })
     const installed = library.filter((game) => game?.is_installed)
     const notInstalled = library.filter(
@@ -682,6 +709,7 @@ export default React.memo(function Library(): JSX.Element {
     gamesForAlphabetFilter,
     alphabetFilterLetter,
     sortDescending,
+    sortBy,
     sortInstalled,
     installing
   ])
@@ -718,6 +746,7 @@ export default React.memo(function Library(): JSX.Element {
         setShowNonAvailable: handleShowNonAvailable,
         setSortDescending: handleSortDescending,
         setSortInstalled: handleSortInstalled,
+        setSortBy: handleSortBy,
         showSupportOfflineOnly,
         setShowSupportOfflineOnly: handleShowSupportOfflineOnly,
         showThirdPartyManagedOnly,
@@ -727,6 +756,7 @@ export default React.memo(function Library(): JSX.Element {
         showSteamOwnedOnly,
         setShowSteamOwnedOnly: handleShowSteamOwnedOnly,
         sortDescending,
+        sortBy,
         sortInstalled,
         handleAddGameButtonClick: () => handleModal('', 'sideload', null),
         setShowCategories,

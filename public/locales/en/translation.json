@@ -892,6 +892,7 @@
         "hideAlphabetFilter": "Hide alphabet filter",
         "showAlphabetFilter": "Show alphabet filter",
         "sortAscending": "Sort ascending",
+        "sortByReleaseDate": "Sort by release date",
         "sortByStatus": "Sort by status",
         "sortDescending": "Sort descending",
         "toggleLayout": {
@@ -1685,6 +1686,7 @@
             "search": "Use the search bar to search for your games.",
             "sortInstalled": "Sort games by installed status.",
             "sortOptions": "Click here to sort games alphabetically.",
+            "sortReleaseDate": "Sort games by release date instead of by name.",
             "viewToggle": "Switch between grid and list view for your games.",
             "welcome": {
                 "intro": "Welcome to the Heroic library! This is where you can see all your games across different stores.",

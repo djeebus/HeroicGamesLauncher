@@ -58,12 +58,19 @@ import { isWindows } from 'backend/constants/environment'
 import { LibraryManager, RunnerBackupPaths } from 'common/types/game_manager'
 import { BACKUP_PATHS } from 'backend/importExport/constants'
 import LegendaryGame from './games'
+import {
+  fetchMissingReleaseDates,
+  getCachedReleaseDate,
+  ReleaseDateLookup
+} from './releaseDates'
 
 const fallBackImage = 'fallback'
 
 const allGames: Set<string> = new Set()
 let installedGames: Map<string, InstalledJsonMetadata> = new Map()
 const library: Map<string, GameInfo> = new Map()
+// Catalog identifiers of base games, used to look up their release dates
+const releaseDateLookups: Map<string, ReleaseDateLookup> = new Map()
 
 export default class LegendaryLibraryManager implements LibraryManager {
   private readonly gameCache: Map<LegendaryAppName, LegendaryGame> = new Map()
@@ -187,6 +194,7 @@ export default class LegendaryLibraryManager implements LibraryManager {
     } catch (error) {
       logError(error, LogPrefix.Legendary)
     }
+    await this.loadReleaseDates()
     const arr = Array.from(library.values())
     libraryStore.set('library', arr)
     logInfo(
@@ -198,6 +206,26 @@ export default class LegendaryLibraryManager implements LibraryManager {
 
   getListOfGames() {
     return libraryStore.get('library', [])
+  }
+
+  /**
+   * Fetches release dates missing from the cache and adds them to the
+   * in-memory library. Legendary's metadata doesn't include them.
+   */
+  private async loadReleaseDates() {
+    if (!isOnline()) return
+    try {
+      await fetchMissingReleaseDates(Array.from(releaseDateLookups.values()))
+    } catch (error) {
+      logError(['Failed to load release dates:', error], LogPrefix.Legendary)
+      return
+    }
+    for (const [appName, { catalogItemId }] of releaseDateLookups) {
+      const game = library.get(appName)
+      if (game?.extra) {
+        game.extra.releaseDate = getCachedReleaseDate(catalogItemId)
+      }
+    }
   }
 
   /**
@@ -597,6 +625,12 @@ export default class LegendaryLibraryManager implements LibraryManager {
     const art_square_front = gameBoxStore ? gameBoxStore.url : undefined
 
     const is_dlc = Boolean(metadata.mainGameItem)
+    if (!is_dlc) {
+      releaseDateLookups.set(app_name, {
+        namespace,
+        catalogItemId: metadata.id
+      })
+    }
 
     const convertedSize = install_size ? getFileSize(Number(install_size)) : '0'
 
@@ -626,7 +660,8 @@ export default class LegendaryLibraryManager implements LibraryManager {
           shortDescription
         },
         reqs: [],
-        storeUrl: formatEpicStoreUrl(title)
+        storeUrl: formatEpicStoreUrl(title),
+        releaseDate: is_dlc ? undefined : getCachedReleaseDate(metadata.id)
       },
       dlcList: dlcItemList,
       folder_name: installFolder,

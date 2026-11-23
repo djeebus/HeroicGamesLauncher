@@ -278,6 +278,8 @@ export interface LibraryContextType {
   setSortDescending: (value: boolean) => void
   sortInstalled: boolean
   setSortInstalled: (value: boolean) => void
+  sortBy: LibrarySortBy
+  setSortBy: (value: LibrarySortBy) => void
   showSupportOfflineOnly: boolean
   setShowSupportOfflineOnly: (value: boolean) => void
   showThirdPartyManagedOnly: boolean
@@ -342,3 +344,5 @@ export interface HelpItem {
   title: string
   content: JSX.Element
 }
+
+export type LibrarySortBy = 'title' | 'releaseDate'

@@ -33,7 +33,8 @@ import { basename, dirname, join, normalize } from 'path'
 import {
   gameInfoStore,
   installStore,
-  libraryStore
+  libraryStore,
+  releaseDateStore
 } from 'backend/storeManagers/legendary/electronStores'
 import {
   achievementStore as GOGAchievementStore,
@@ -398,6 +399,7 @@ function clearCache(
     installStore.clear()
     libraryStore.clear()
     gameInfoStore.clear()
+    releaseDateStore.clear()
     libraryManagerMap['legendary'].runRunnerCommand(
       { subcommand: 'cleanup' },
       { abortId: 'legandary-cleanup' }

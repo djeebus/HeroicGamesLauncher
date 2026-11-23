@@ -25,3 +25,13 @@ export const gamesOverrideStore: CacheStore<GameOverride, 'gamesOverride'> =
   )
 
 export const gameInfoStore = new CacheStore<ExtraInfo>('legendary_gameinfo')
+
+/**
+ * Release dates looked up from the Epic store, keyed by catalog item id.
+ * An empty string means the item has no known release date.
+ * Lasts for 30 days
+ */
+export const releaseDateStore = new CacheStore<string>(
+  'legendary_release_dates',
+  60 * 24 * 30
+)

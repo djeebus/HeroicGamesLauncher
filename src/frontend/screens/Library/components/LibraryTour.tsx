@@ -94,6 +94,14 @@ const LibraryTour: React.FC = () => {
       position: 'left'
     },
     {
+      element: '[data-tour="library-sort-release-date"]',
+      intro: t(
+        'tour.library.sortReleaseDate',
+        'Sort games by release date instead of by name.'
+      ),
+      position: 'left'
+    },
+    {
       element: '[data-tour="library-sort-installed"]',
       intro: t('tour.library.sortInstalled', 'Sort games by installed status.'),
       position: 'left'

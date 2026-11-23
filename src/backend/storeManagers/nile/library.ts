@@ -1,4 +1,5 @@
 import JSON5 from 'json5'
+import { toIsoReleaseDate } from 'common/releaseDate'
 import {
   LogPrefix,
   logDebug,
@@ -116,7 +117,7 @@ export default class NileLibraryManager implements LibraryManager {
         extra: {
           reqs: [],
           genres,
-          releaseDate
+          releaseDate: toIsoReleaseDate(releaseDate)
         },
         is_linux_native: false,
         is_mac_native: false

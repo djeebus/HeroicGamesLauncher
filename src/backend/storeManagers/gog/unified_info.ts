@@ -1,4 +1,5 @@
 import { GameInfo } from 'common/types'
+import { toIsoReleaseDate } from 'common/releaseDate'
 import { ProductsEndpointData } from 'common/types/gog'
 
 function normalizeImageUrl(url?: string): string {
@@ -30,7 +31,8 @@ export function productToGameInfo(
         description,
         shortDescription: info.description?.lead || ''
       },
-      reqs: []
+      reqs: [],
+      releaseDate: toIsoReleaseDate(info.release_date)
     },
     folder_name: '',
     install: {

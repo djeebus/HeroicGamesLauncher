@@ -1,4 +1,5 @@
 import { sendFrontendMessage } from '../../ipc'
+import { toIsoReleaseDate } from 'common/releaseDate'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { GOGUser } from './user'
 import {
@@ -1119,7 +1120,10 @@ export default class GOGLibraryManager implements LibraryManager {
       extra: {
         about: { description: info.summary['*'], shortDescription: '' },
         reqs: [],
-        genres: info.game.genres.map((genre) => genre.name['*'])
+        genres: info.game.genres.map((genre) => genre.name['*']),
+        releaseDate: toIsoReleaseDate(
+          info.game.first_release_date || info.first_release_date
+        )
       },
       folder_name: '',
       install: {
